@@ -1,0 +1,31 @@
+# Design QA workflow — workshop stub
+# Save this as .github/workflows/design-qa.yml in your repo.
+#
+# Triggers the QA agent on every pull request. Requires ANTHROPIC_API_KEY
+# to be added as a repo secret (Settings -> Secrets and variables -> Actions).
+
+name: Design QA
+
+on:
+  pull_request:
+    branches: [main] # PLACEHOLDER — update if your default branch is different
+
+jobs:
+  design-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run design QA agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node design-qa-agent.js # PLACEHOLDER — update path if you move the script
