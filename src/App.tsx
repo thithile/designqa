@@ -33,12 +33,8 @@ function App() {
       <header className="flex items-center justify-between px-6 py-4 border-b border-border">
         <span className="font-semibold">Meridian & Co.</span>
         <nav className="flex items-center gap-4">
-          <button className="text-sm text-muted-foreground hover:text-foreground">
-            Shop
-          </button>
-          <Button variant="ghost">
-            Sign in
-          </Button>
+          <Button variant="outline">Shop</Button>
+          <Button variant="outline">Sign in</Button>
         </nav>
       </header>
 
