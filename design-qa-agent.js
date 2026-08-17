@@ -6,16 +6,17 @@
  * design system's component manifest, and posts a pass/fail result back
  * to the PR.
  *
- * ALREADY WIRED: fetching the diff, reading the manifest, posting the
+ * ALREADY WIRED: fetching the diff, reading the manifest, calling
+ * Claude, handling API errors, parsing the response, posting the
  * result, exiting with the right status code.
  *
- * YOUR JOB: fill in checkDesignCompliance() — the part that actually
- * decides whether the diff follows the design system.
+ * YOUR JOB: fill in buildPrompt() — write the prompt that decides
+ * whether the diff follows the design system.
  *
  * File paths below are placeholders. Update them to match your repo.
  */
 
-const fs = require("fs");
+import fs from "node:fs";
 
 // --- Placeholders — update these to match your repo structure ---
 const PLACEHOLDER_MANIFEST_PATH = "./manifest.json"; // now pointed at the real manifest
@@ -53,19 +54,46 @@ function readManifest() {
 }
 
 // ============================================================
-// TODO — YOUR CODE HERE
-// This is the part you build during the workshop.
+// YOUR JOB — write the prompt
 //
-// Call the Claude API with the diff and the manifest, and ask it to:
-//   1. Identify any component, color, or spacing value used in the
-//      diff that isn't defined in the manifest
-//   2. Decide pass or fail
-//   3. Explain its reasoning — which file, which line, and why
+// This is the only part you need to write. Everything else below
+// (calling the API, handling errors, parsing the result) is already
+// wired up and working.
 //
-// Return something shaped like:
-//   { pass: true|false, findings: [{ file, line, issue, reasoning }] }
+// Write a prompt that asks Claude to compare the diff against the
+// manifest and decide pass/fail. Things worth including:
+//   - Reference the manifest explicitly, don't just say "the design system"
+//   - Say what counts as an issue (off-system components, hardcoded
+//     colors, arbitrary spacing, deprecated variants)
+//   - Ask for structured reasoning, not just a verdict
+//
+// IMPORTANT: whatever you ask for, it must come back as valid JSON in
+// exactly this shape, because that's what the code below expects:
+//   {
+//     "pass": true or false,
+//     "findings": [
+//       { "file": "...", "line": "...", "issue": "...", "reasoning": "..." }
+//     ]
+//   }
+// If there are no issues, "pass" should be true and "findings" empty.
+// ============================================================
+function buildPrompt(diff, manifest) {
+  return `TODO: write your prompt here.
+
+Manifest:
+${manifest}
+
+Diff:
+${diff}`;
+}
+
+// ============================================================
+// ALREADY WIRED — calls Claude, checks for API errors, and parses
+// the JSON response. You shouldn't need to touch this function.
 // ============================================================
 async function checkDesignCompliance(diff, manifest) {
+  const prompt = buildPrompt(diff, manifest);
+
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -76,27 +104,43 @@ async function checkDesignCompliance(diff, manifest) {
     body: JSON.stringify({
       model: CLAUDE_MODEL,
       max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content:
-            // TODO: write your actual prompt here. Reference the manifest
-            // explicitly, tell it what counts as an issue, and ask for
-            // structured, file-and-line-level reasoning — not a summary.
-            `TODO: write your prompt.\n\nManifest:\n${manifest}\n\nDiff:\n${diff}`,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
     }),
   });
 
   const data = await response.json();
+
+  if (!response.ok) {
+    console.error(`Anthropic API error (status ${response.status}):`, JSON.stringify(data, null, 2));
+    return {
+      pass: false,
+      findings: [{
+        file: "-",
+        line: "-",
+        issue: "API call failed",
+        reasoning: data?.error?.message || `HTTP ${response.status}`,
+      }],
+    };
+  }
+
   const text = data.content?.[0]?.text ?? "";
 
-  // TODO: parse `text` into the structured result shape described above.
-  // A quick starting point: ask Claude to respond in JSON, then
-  // JSON.parse() it here instead of returning raw text.
-  return { pass: null, findings: [], raw: text };
+  try {
+    const cleaned = text.replace(/```json\n?|```\n?/g, "").trim();
+    const result = JSON.parse(cleaned);
+    return {
+      pass: result.pass === true,
+      findings: Array.isArray(result.findings) ? result.findings : [],
+    };
+  } catch (err) {
+    console.error("Failed to parse Claude's response as JSON:", text);
+    return {
+      pass: false,
+      findings: [{ file: "-", line: "-", issue: "Agent response could not be parsed", reasoning: text.slice(0, 300) }],
+    };
+  }
 }
+
 
 // ============================================================
 // ALREADY WIRED — post the result back to the PR
@@ -112,7 +156,7 @@ async function postResult(result) {
         .map((f) => `- **${f.file}:${f.line}** — ${f.issue}\n  ${f.reasoning}`)
         .join("\n")}`;
 
-  await fetch(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, {
+  const commentRes = await fetch(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -121,6 +165,13 @@ async function postResult(result) {
     },
     body: JSON.stringify({ body }),
   });
+
+  if (!commentRes.ok) {
+    const errText = await commentRes.text();
+    console.error(`Failed to post comment (status ${commentRes.status}):`, errText);
+  } else {
+    console.log("Comment posted successfully.");
+  }
 
   // Non-zero exit makes the GitHub Action report a failed check.
   process.exit(result.pass ? 0 : 1);
