@@ -36,7 +36,9 @@ function App() {
           <button className="text-sm text-muted-foreground hover:text-foreground">
             Shop
           </button>
-          <Button variant="ghost">Sign in</Button>
+          <Button variant="ghost">
+            Sign in
+          </Button>
         </nav>
       </header>
 
