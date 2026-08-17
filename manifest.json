@@ -22,7 +22,8 @@
     "Use the Button component for all interactive buttons. Do not use raw <button> elements styled to look like a Button.",
     "Use color tokens (e.g. text-muted-foreground, bg-primary, text-foreground) for all color values. Do not use hardcoded hex values, inline color styles, or arbitrary Tailwind color values.",
     "Use the approved spacing scale (xs, sm, md, lg, xl) for all padding, margin, and gap values. Do not use arbitrary bracket values like py-[37px].",
-    "Do not use deprecated component variants. See deprecatedVariants above."
+    "Do not use deprecated component variants. See deprecatedVariants above.",
+    "Do not use max-w-xs, max-w-sm, max-w-md, max-w-lg, or max-w-xl — these collide with the approved spacing scale tokens and silently resolve to spacing values instead of container widths. Use a numeric utility (e.g. max-w-96) or a size outside that range (max-w-2xl+) instead."
   ],
   "spacingScale": {
     "xs": "0.5rem",

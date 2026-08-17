@@ -1,3 +1,4 @@
+import { ShoppingBag, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,18 +9,21 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const features = [
+const categories = [
   {
-    title: "Fast setup",
-    description: "Get your team running in minutes, not days.",
+    icon: Truck,
+    title: "Free shipping",
+    description: "Free standard shipping on every order over $50.",
   },
   {
-    title: "Built-in checks",
-    description: "Catch issues before they reach your customers.",
+    icon: RotateCcw,
+    title: "Easy returns",
+    description: "30-day returns, no questions asked, on every item.",
   },
   {
-    title: "Works with your stack",
-    description: "Drop it into your existing workflow with no rewrites.",
+    icon: ShieldCheck,
+    title: "Secure checkout",
+    description: "Your payment details are encrypted end to end.",
   },
 ];
 
@@ -27,41 +31,50 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="flex items-center justify-between px-6 py-4 border-b border-border">
-        <span className="font-semibold">Northwind</span>
+        <span className="font-semibold">Meridian & Co.</span>
         <nav className="flex items-center gap-4">
           <button className="text-sm text-muted-foreground hover:text-foreground">
-            Pricing
+            Shop
           </button>
           <Button variant="ghost">Sign in</Button>
         </nav>
       </header>
 
-      <section className="flex flex-col items-center text-center px-6 py-xl gap-md">
-        <Badge variant="secondary">New: Team workspaces</Badge>
-        <h1 className="text-4xl font-bold tracking-tight max-w-2xl">
-          Ship with confidence, every time
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-xl">
-          Northwind helps your team catch problems early, so launches feel
-          routine instead of risky.
-        </p>
-        <div className="flex items-center gap-sm pt-sm">
-          <Button size="lg">Get started</Button>
-          <button className="h-10 rounded-md px-8 text-sm font-medium border border-border bg-background hover:bg-accent">
-            Learn more
-          </button>
+      <section className="grid grid-cols-1 md:grid-cols-2 items-center gap-lg px-6 py-xl max-w-5xl mx-auto">
+        <div className="flex flex-col items-start text-left gap-md">
+          <Badge variant="secondary">New: Fall collection</Badge>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Everything you need, delivered fast
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Shop thousands of everyday essentials, curated for quality and
+            priced to keep you coming back.
+          </p>
+          <div className="flex items-center gap-sm pt-sm">
+            <Button size="lg">Shop now</Button>
+            <button className="h-10 rounded-md px-8 text-sm font-medium border border-border bg-background hover:bg-accent">
+              View collection
+            </button>
+          </div>
+          <p style={{ color: "#6b7280" }} className="text-sm pt-xs">
+            Trusted by over 2 million shoppers worldwide
+          </p>
         </div>
-        <p style={{ color: "#6b7280" }} className="text-sm pt-xs">
-          Trusted by teams at companies of every size
-        </p>
+        <div className="flex aspect-square items-center justify-center rounded-lg bg-secondary">
+          <ShoppingBag
+            className="size-24 text-muted-foreground"
+            strokeWidth={1}
+          />
+        </div>
       </section>
 
       <section className="px-6 py-[37px] grid grid-cols-1 md:grid-cols-3 gap-md max-w-5xl mx-auto">
-        {features.map((feature) => (
-          <Card key={feature.title}>
+        {categories.map((category) => (
+          <Card key={category.title}>
             <CardHeader>
-              <CardTitle>{feature.title}</CardTitle>
-              <CardDescription>{feature.description}</CardDescription>
+              <category.icon className="size-6 text-muted-foreground" />
+              <CardTitle>{category.title}</CardTitle>
+              <CardDescription>{category.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" size="sm">
@@ -73,15 +86,15 @@ function App() {
       </section>
 
       <section className="flex flex-col items-center text-center px-6 py-xl gap-sm border-t border-border">
-        <h2 className="text-2xl font-semibold">Ready to try it out?</h2>
-        <p className="text-muted-foreground max-w-md">
-          Start free. No credit card required.
+        <h2 className="text-2xl font-semibold">Ready to start shopping?</h2>
+        <p className="text-muted-foreground max-w-96">
+          Create an account for free shipping and order tracking.
         </p>
         <Button size="lg">Create your account</Button>
       </section>
 
       <footer className="px-6 py-md text-center text-sm text-muted-foreground border-t border-border">
-        © 2026 Northwind, Inc.
+        © 2026 Meridian & Co.
       </footer>
     </div>
   );
