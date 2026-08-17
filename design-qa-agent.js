@@ -78,13 +78,29 @@ function readManifest() {
 // If there are no issues, "pass" should be true and "findings" empty.
 // ============================================================
 function buildPrompt(diff, manifest) {
-  return `TODO: write your prompt here.
+  return `You are a design system QA reviewer. Compare the following code diff against the component manifest and identify anywhere the diff does NOT follow the approved design system.
 
 Manifest:
 ${manifest}
 
 Diff:
-${diff}`;
+${diff}
+
+Check specifically for:
+1. Raw HTML elements (like <button>) used instead of the approved component (like Button)
+2. Hardcoded color values (hex codes, inline color styles) instead of approved color tokens
+3. Arbitrary spacing values (e.g. bracket values like py-[37px]) instead of the approved spacing scale
+4. Use of any variant listed as deprecated in the manifest
+
+Respond ONLY with valid JSON in this exact shape, no other text:
+{
+  "pass": true or false,
+  "findings": [
+    { "file": "path/to/file", "line": "approximate line or snippet", "issue": "short description", "reasoning": "why this violates the manifest" }
+  ]
+}
+
+If there are no issues, return "pass": true and an empty findings array.`;
 }
 
 // ============================================================
