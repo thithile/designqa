@@ -13,9 +13,6 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         outline:
           "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
-        // "ghost" exists in the underlying library but is deprecated for
-        // this project — see manifest.json. Kept here only so the seeded
-        // issue in the landing page has something real to point at.
         ghost: "hover:bg-accent hover:text-accent-foreground",
       },
       size: {
